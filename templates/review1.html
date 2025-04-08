@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Review Results</title>
+    <link rel="stylesheet" href="../static/style1.css">
+</head>
+<body>
+    <header>
+        <h1>Code Review Results</h1>
+    </header>
+
+    <main class="review-container">
+        <section class="section">
+            <h2>Correctness Assessment</h2>
+            <pre>{{review.correctness}}</pre>
+        </section>
+        
+        <section class="section">
+            <h2>Optimization Suggestions</h2>
+            <pre>{{review.optimizations}}</pre>
+        </section>
+        
+        <section class="section">
+            <h2>Best Practices Check</h2>
+            <pre>{{review.bestpractice}}</pre>
+        </section>
+        
+        <section class="section">
+            <h2>Security Analysis</h2>
+            <pre>{{review.security}}</pre>
+        </section>
+        <section class="section">
+            <h2>Optimized Version</h2>
+            <pre>{% autoescape false %}{{review.code | safe }}{% endautoescape %}</pre>
+        </section>
+        
+        <button class="back-button" onclick="goBack()">Back to Home</button>
+    </main>
+
+    <script src="../static/script1.js"></script>
+    <!-- <div class="container">
+        <h1>Code Review Result</h1>
+        <pre>{{ review }}</pre>
+    
+        <div class="download-btn">
+          <a href="/download_docx">Download DOCX Report</a>
+        </div>
+      </div> -->
+</body>
+</html>
