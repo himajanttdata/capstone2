@@ -145,8 +145,7 @@ def submit():
             "repo": repo_name,
             "code": all_chunks
         })
-        print("Result")
-        
+
         review_report = result["final_report"]
 
         # Save the review text

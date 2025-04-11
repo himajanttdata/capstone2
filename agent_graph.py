@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph, END
 from responder_engine import ResponderEngine
-from typing import TypedDict
+from typing import TypedDict, List, Optional
 
 class ReviewState(TypedDict):
     repo: str
@@ -9,6 +9,10 @@ class ReviewState(TypedDict):
     bug_report: str
     optimizations: str
     final_report: str
+# class AgentState(TypedDict):
+#     code_chunks: List[str]
+#     optimized_code: Optional[str]
+#     review: Optional[str]
 
 graph = StateGraph(ReviewState)
 
