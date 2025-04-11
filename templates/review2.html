@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Review Results</title>
+    <link rel="stylesheet" href="../static/css/style2.css">
+
+</head>
+<body>
+    <div class="sidebar-toggle" onclick="toggleSidebar()">☰</div>
+
+    <!-- Hamburger Sidebar Menu -->
+    <div class="sidebar" id="sidebar">
+        <a href="/"><i class="fas fa-home"></i>🏠Home</a>
+        <a href="#" onclick="toggleDarkMode()"><i class="fas fa-adjust"></i>🌓Toggle Mode</a>
+        <a href="https://github.com/" target="_blank" class="sidebar-link">
+            <i class="fab fa-github"></i>🐙GitHub
+        </a>
+    </div>
+  
+
+    <header>
+        <h1>Code Review Results</h1>    
+
+    <main class="review-container">
+        <section class="section">
+            <h2>📈Quality Analysis</h2>
+            <pre>{{review.quality}}</pre>
+        </section>
+        <section class="section">
+            <h2>🪲Bug Detection</h2>
+            <pre>{{review.bugs}}</pre>
+        </section>
+        
+        <section class="section">
+            <h2>🚀Optimization Suggestions</h2>
+            <pre>{{review.suggestions}}</pre>
+            
+        </section>
+        
+        <section class="section">
+            <h2>🔧Optimized code</h2>
+            <pre>{{review.optimized}}</pre>
+        </section>
+        
+        <section class="section">
+            <h2>📄Summary</h2>
+            <pre>{{review.summary}}</pre>
+        </section>
+
+        <section class="section">
+            <h2>Conclusion</h2>
+            <pre>{{review.conclusion}}</pre>
+        </section>
+
+        <!-- New Download Button -->
+        <button class="download-button" onclick="downloadReviewReport()">⬇️ Download Report</button>
+        <button class="back-button" onclick="goBack()">Back to Home</button>
+        
+    </main>
+
+    
+
+    <script src="../static/Js/script2.js"></script>
+</body>
+</html>

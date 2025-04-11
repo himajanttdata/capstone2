@@ -48,16 +48,16 @@ app.config["REPORT_FOLDER"] = REPORT_FOLDER
 #     return render_template("intro1.html", review=review_report)
 @app.route("/")
 def intro():
-    return render_template("intro1.html")
-@app.route("/index1")
+    return render_template("intro2.html")
+@app.route("/index2")
 def index1():
-    return render_template("index1.html")
-@app.route("/review1")
+    return render_template("index2.html")
+@app.route("/review2")
 def review1():
     # Load review from saved file
     report_path = os.path.join(REPORT_FOLDER,"latest_review.txt")
     if not os.path.exists(report_path):
-        return render_template("review1.html", review = None)
+        return render_template("review2.html", review = None)
     with open(report_path, "r", encoding="utf-8") as f:
         review_text = f.read()
     review = {
@@ -111,7 +111,7 @@ def review1():
     # print("Optimized version : ")
     # print(review["code"])
     # print(sections["Optimized Version"])     
-    return render_template("review1.html",review = review)
+    return render_template("review2.html",review = review)
 
 # Handle Submission (POST from index1)
 @app.route("/submit", methods=["POST"])
