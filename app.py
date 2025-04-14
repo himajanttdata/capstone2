@@ -60,58 +60,75 @@ def review1():
         return render_template("review2.html", review = None)
     with open(report_path, "r", encoding="utf-8") as f:
         review_text = f.read()
-    review = {
-        "correctness" : "",
-        "optimizations" : "",
-        "bestpractice" : "",
-        "security" : "",
-        "code" : ""
-    }
+    
+    sections = re.split(r"^##\s+\**(.*?)\**\s*$", review_text, flags = re.MULTILINE)
 
-    sections = [
-        "Correctness Assessment:",
-        "Optimization Suggestions:",
-        "Best Practices Check:",
-        "Security Analysis:",
-        "Optimized Version"
-    ]
+    section_map = {}
+    for i in range(1, len(sections), 2):
+        title = sections[i].strip().lower()
+        body = sections[i+1].strip()
+        section_map[title.lower().replace(" ","_")] = {
+            "title": title,
+            "body": body
+        }
+    # print("sections content: ",sections)
+    return render_template("review2.html", sections = section_map)
+    # review = {
+    #     "quality" : "",
+    #     "bugs" : "",
+    #     "suggestions" : "",
+    #     "optimized_code" : "",
+    #     "summary" : "",
+    #     "conclusion": ""
+    # }
 
-    # lines = review_text.splitlines()
-    current_section = None
+    # sections = [
+    #     "Quality Analysis:",
+    #     "Bug Detection:",
+    #     "Optimization Suggestions:",
+    #     "Optimized code:",
+    #     "Summary:",
+    #     "Conclusion:"
+    # ]
 
-    section_map = {
-        "Correctness Assessment:": "correctness",
-        "Optimization Suggestions:": "optimizations",
-        "Best Practices Check:": "bestpractice",
-        "Security Analysis:": "security",
-        "Optimized Version": "code"
-    }
-    # sections = {key: "" for key in section_map.values()}
+    # # lines = review_text.splitlines()
     # current_section = None
-    for line in review_text.splitlines():
-        # match = re.match(r"\*\*(.*?)\*\*", line.strip())
-        # if match:
-        #     heading = match.group(1).lower()
-        #     for key in section_map:
-        #         if key in heading:
-        #             current_section = section_map[key]
-        #             break
-        # elif current_section:
-        #     sections[current_section] += line + "\n"
 
-        line = line.strip()
-        if line.startswith("**") and line.endswith("**:"):
-            section_title = line.strip("* ")
-            current_section = section_map.get(section_title + ":")
-        elif line.startswith("**") and line.endswith(":**"):
-            section_title = line.strip("* ")
-            current_section = section_map.get(section_title)
-        elif current_section:
-            review[current_section] += line + "\n"
-    # print("Optimized version : ")
-    # print(review["code"])
-    # print(sections["Optimized Version"])     
-    return render_template("review2.html",review = review)
+    # section_map = {
+    #     "Quality Analysis:": "quality",
+    #     "Bug Detection:": "bugs",
+    #     "Optimization Suggestions": "suggestions",
+    #     "Optimized code:": "optimized_code",
+    #     "Summary:": "summary",
+    #     "Conclusion": "conclusion"
+
+    # }
+    # # sections = {key: "" for key in section_map.values()}
+    # # current_section = None
+    # for line in review_text.splitlines():
+    #     # match = re.match(r"\*\*(.*?)\*\*", line.strip())
+    #     # if match:
+    #     #     heading = match.group(1).lower()
+    #     #     for key in section_map:
+    #     #         if key in heading:
+    #     #             current_section = section_map[key]
+    #     #             break
+    #     # elif current_section:
+    #     #     sections[current_section] += line + "\n"
+
+    #     line = line.strip()
+    #     if line.startswith("**") and line.endswith("**:"):
+    #         section_title = line.strip("* ")
+    #         current_section = section_map.get(section_title + ":")
+    #     elif line.startswith("**") and line.endswith(":**"):
+    #         section_title = line.strip("* ")
+    #         current_section = section_map.get(section_title)
+    #     elif current_section:
+    #         review[current_section] += line + "\n"
+    # # print("Optimized version : ")
+    # # print(review["code"])
+    # # print(sections["Optimized Version"])     
+    # return render_template("review2.html",review = review)
 
 # Handle Submission (POST from index1)
 @app.route("/submit", methods=["POST"])

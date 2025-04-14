@@ -163,30 +163,48 @@ function goBack() {
     window.location.href = "/index2";
 }
 
-function downloadReviewReport() {
-    // Collect review content from the DOM
-    const bugs = document.getElementById("bug-list").innerText;
-    const optimizations = document.getElementById("optimization-list").innerText;
-    const docs = document.getElementById("documentation").innerText;
-    const reframing = document.getElementById("reframing-list").innerText;
+// function downloadReviewReport() {
+//     // Collect review content from the DOM
+//     const bugs = document.getElementById("bug-list").innerText;
+//     const optimizations = document.getElementById("optimization-list").innerText;
+//     const docs = document.getElementById("documentation").innerText;
+//     const reframing = document.getElementById("reframing-list").innerText;
 
-    // Create text content for the file
-    const content = `AI Code Review Report\n\n` +
-        `🪲 Detected Issues & Bugs:\n${bugs}\n\n` +
-        `🚀 Optimization Suggestions:\n${optimizations}\n\n` +
-        `📄 Auto-Generated Documentation:\n${docs}\n\n` +
-        `🔧 Code Reframing Suggestions:\n${reframing}`;
+//     // Create text content for the file
+//     const content = `AI Code Review Report\n\n` +
+//         `🪲 Detected Issues & Bugs:\n${bugs}\n\n` +
+//         `🚀 Optimization Suggestions:\n${optimizations}\n\n` +
+//         `📄 Auto-Generated Documentation:\n${docs}\n\n` +
+//         `🔧 Code Reframing Suggestions:\n${reframing}`;
 
-    // Create a blob and download link
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "AI_Code_Review_Report.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+//     // Create a blob and download link
+//     const blob = new Blob([content], { type: "text/plain" });
+//     const url = URL.createObjectURL(blob);
+//     const a = document.createElement("a");
+//     a.href = url;
+//     a.download = "AI_Code_Review_Report.txt";
+//     document.body.appendChild(a);
+//     a.click();
+//     document.body.removeChild(a);
+//     URL.revokeObjectURL(url);
+// }
+function downloadDOCX() {
+    const reviewText = document.getElementById("review-text").innerText;
+    fetch('/download_docx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ review: reviewText })
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = "Code_Review_Report.docx";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    })
+    .catch(error => console.error('Error downloading DOCX:', error));
 }
 
 

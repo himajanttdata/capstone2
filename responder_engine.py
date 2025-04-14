@@ -37,7 +37,7 @@ class ResponderEngine:
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.3,
-            "max_tokens": 2000
+            # "max_tokens": 2000
         }
         try:
             response = requests.post(self.api_url,headers= self.headers, json= body)
@@ -126,12 +126,13 @@ provide feedback in simple way. don't get in so deep
 ### Optimization Suggestions:
 {optimizations}
 
-###Summary
+###Summary:
 
 - Code Quality: [Excellent / Good / Needs Improvement]
 - Bugs: [None/Minor/Major]
 - Optimization: [Not Required/ Recommended/ Essential]
-
+###Conclusion:
 Provide a conclusion on whether the code is Production-ready or needs further work.
+Follow this template given STRICTLY do not add any other sections.
 """
         return self.query(prompt,system_prompt)

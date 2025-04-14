@@ -345,12 +345,28 @@ main {
 
 /* SECTION BOX STYLING */
 .section {
+    width: 50%;
+    align-self: center;
     background-color: #ffffff; /* Solid white background */
     padding: 25px;
     border-radius: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     margin-bottom: 30px;
     transition: background-color 0.3s, color 0.3s;
+    overflow-x: auto;
+    word-wrap: break-word;
+}
+
+pre {
+    background: #c0eaee;
+    padding: 10px;
+    border-radius: 5px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 14px;
+    border-left: 5px solid #01435a;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 
@@ -454,7 +470,7 @@ footer {
 
 /* Dark mode */
 .dark-mode {
-    background-color: #121212;
+    background-color: #01435a;
     color: white;
 }
 
