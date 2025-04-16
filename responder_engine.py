@@ -115,7 +115,7 @@ provide feedback in simple way. don't get in so deep
 
     def run_report_generation(self, quality, bugs, optimizations, repo_name):
         system_prompt = f"""
-        you are the report generator. Using the analysis results below, create a detailed and structured markdown review report for the repository "{repo_name}"""
+        you are the report generator. Using the analysis results below, create a detailed and structured markdown review report for the repository "{repo_name}."""
         prompt = f"""
 ### Quality Analysis:
 {quality}
@@ -126,12 +126,12 @@ provide feedback in simple way. don't get in so deep
 ### Optimization Suggestions:
 {optimizations}
 
-###Summary:
+### Summary:
 
 - Code Quality: [Excellent / Good / Needs Improvement]
 - Bugs: [None/Minor/Major]
 - Optimization: [Not Required/ Recommended/ Essential]
-###Conclusion:
+### Conclusion:
 Provide a conclusion on whether the code is Production-ready or needs further work.
 Follow this template given STRICTLY do not add any other sections.
 """

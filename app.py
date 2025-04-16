@@ -6,6 +6,8 @@ from agent_graph import app as review_graph
 import os
 import uuid
 import re
+import markdown, html2docx
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 UPLOAD_FOLDER = "upload"
@@ -46,6 +48,42 @@ app.config["REPORT_FOLDER"] = REPORT_FOLDER
 #             review_report = responder.generate_code_review(repo_name, all_chunks)
 
 #     return render_template("intro1.html", review=review_report)
+# def parse_review_sections(review_text):
+#     md = MarkdownIt()
+#     tokens = md.parse(review_text)
+
+#     sections = {}
+#     current_title = None
+#     current_body = []
+
+#     for token in tokens:
+#         if token.type == "heading_open" and token.tag in ["h2", "h3"]:
+#             # Store previous section
+#             if current_title and current_body:
+#                 sections[current_title.lower().replace(" ", "_")] = {
+#                     "title": current_title,
+#                     "body": "\n".join(current_body).strip()
+#                 }
+#                 current_body = []
+
+#         elif token.type == "inline" and current_title is None:
+#             current_title = token.content.strip()
+
+#         elif token.type == "inline" and current_title:
+#             current_body.append(token.content.strip())
+
+#         elif token.type == "paragraph_open":
+#             continue  # Skip — handled by `inline`
+
+#     # Save last section
+#     if current_title and current_body:
+#         sections[current_title.lower().replace(" ", "_")] = {
+#             "title": current_title,
+#             "body": "\n".join(current_body).strip()
+#         }
+
+#     return sections
+
 @app.route("/")
 def intro():
     return render_template("intro2.html")
@@ -60,75 +98,23 @@ def review1():
         return render_template("review2.html", review = None)
     with open(report_path, "r", encoding="utf-8") as f:
         review_text = f.read()
-    
-    sections = re.split(r"^##\s+\**(.*?)\**\s*$", review_text, flags = re.MULTILINE)
 
-    section_map = {}
-    for i in range(1, len(sections), 2):
-        title = sections[i].strip().lower()
-        body = sections[i+1].strip()
-        section_map[title.lower().replace(" ","_")] = {
-            "title": title,
-            "body": body
-        }
-    # print("sections content: ",sections)
-    return render_template("review2.html", sections = section_map)
-    # review = {
-    #     "quality" : "",
-    #     "bugs" : "",
-    #     "suggestions" : "",
-    #     "optimized_code" : "",
-    #     "summary" : "",
-    #     "conclusion": ""
-    # }
+        html = markdown.markdown(review_text)
+        soup = BeautifulSoup(html, "html.parser")
+        sections = {}
+        current_title = None
 
-    # sections = [
-    #     "Quality Analysis:",
-    #     "Bug Detection:",
-    #     "Optimization Suggestions:",
-    #     "Optimized code:",
-    #     "Summary:",
-    #     "Conclusion:"
-    # ]
+        for tag in soup.find_all(["h2", "h3", "h4", "p", "ul", "ol", "pre", "blockquote"]):
+            if tag.name.startswith("h"):
+                current_title = tag.text.strip()
+                sections[current_title.lower().replace(" ","_")] = {
+                    "title": current_title,
+                    "body": ""
+                }
+            elif current_title:
+                sections[current_title.lower().replace(" ","_")]["body"] += str(tag)
+    return render_template("review2.html", sections = sections)
 
-    # # lines = review_text.splitlines()
-    # current_section = None
-
-    # section_map = {
-    #     "Quality Analysis:": "quality",
-    #     "Bug Detection:": "bugs",
-    #     "Optimization Suggestions": "suggestions",
-    #     "Optimized code:": "optimized_code",
-    #     "Summary:": "summary",
-    #     "Conclusion": "conclusion"
-
-    # }
-    # # sections = {key: "" for key in section_map.values()}
-    # # current_section = None
-    # for line in review_text.splitlines():
-    #     # match = re.match(r"\*\*(.*?)\*\*", line.strip())
-    #     # if match:
-    #     #     heading = match.group(1).lower()
-    #     #     for key in section_map:
-    #     #         if key in heading:
-    #     #             current_section = section_map[key]
-    #     #             break
-    #     # elif current_section:
-    #     #     sections[current_section] += line + "\n"
-
-    #     line = line.strip()
-    #     if line.startswith("**") and line.endswith("**:"):
-    #         section_title = line.strip("* ")
-    #         current_section = section_map.get(section_title + ":")
-    #     elif line.startswith("**") and line.endswith(":**"):
-    #         section_title = line.strip("* ")
-    #         current_section = section_map.get(section_title)
-    #     elif current_section:
-    #         review[current_section] += line + "\n"
-    # # print("Optimized version : ")
-    # # print(review["code"])
-    # # print(sections["Optimized Version"])     
-    # return render_template("review2.html",review = review)
 
 # Handle Submission (POST from index1)
 @app.route("/submit", methods=["POST"])
@@ -187,7 +173,7 @@ def submit():
 
 #     return send_file(docx_path, as_attachment=True)
 # Download Review as DOCX
-@app.route("/download_docx", methods=["GET"])
+@app.route("/download_docx", methods=["POST"])
 def download_docx():
     report_path = os.path.join(REPORT_FOLDER, "latest_review.txt")
     if not os.path.exists(report_path):
@@ -195,15 +181,59 @@ def download_docx():
 
     with open(report_path, "r", encoding="utf-8") as f:
         review_text = f.read()
+    
+    review_html = markdown(review_text)
 
     doc = Document()
     doc.add_heading("Code Review Report", level=1)
-    doc.add_paragraph(review_text)
+    # lines = review_text.splitlines()
+
+    # for line in lines:
+    #     line = line.strip()
+
+    #     if not line:
+    #         continue
+
+    #     # Headings
+    #     if line.startswith("# "):
+    #         doc.add_heading(line[2:].strip(), level=1)
+    #     elif line.startswith("## "):
+    #         doc.add_heading(line[3:].strip(), level=2)
+    #     elif line.startswith("### "):
+    #         doc.add_heading(line[4:].strip(), level=3)
+        
+        
+    #     # Bullet list
+    #     elif line.startswith("- ") or line.startswith("* "):
+    #         doc.add_paragraph(line[2:].strip(), style='List Bullet')
+
+    #     # Numbered list
+    #     elif re.match(r"^\d+\.\s", line):
+    #         content = re.sub(r"^\d+\.\s+", "", line)
+    #         doc.add_paragraph(content.strip(), style='List Number')
+
+    #     # Bold
+    #     elif "**" in line:
+    #         parts = re.split(r"(\*\*.*?\*\*)", line)
+    #         para = doc.add_paragraph()
+    #         for part in parts:
+    #             if part.startswith("**") and part.endswith("**"):
+    #                 run = para.add_run(part[2:-2])
+    #                 run.bold = True
+    #             else:
+    #                 para.add_run(part)
+        
+    #     # Normal paragraph
+    #     else:
+    #         doc.add_paragraph(line)
+    html2docx(review_html,doc)
+
 
     docx_path = os.path.join(REPORT_FOLDER, "latest_review.docx")
     doc.save(docx_path)
 
     return send_file(docx_path, as_attachment=True)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
