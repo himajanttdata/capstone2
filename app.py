@@ -1,15 +1,20 @@
+#Without Analyzing selected files logic
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
 from github_engine import GitHubEngine
 from responder_engine import ResponderEngine
 from docx import Document  # Import python-docx for DOCX generation
 from agent_graph import app as review_graph
 import os
-import uuid
-import re
-import markdown, html2docx
+import markdown
 from bs4 import BeautifulSoup
+from docx.shared import Pt
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+
 
 app = Flask(__name__)
+
+
 UPLOAD_FOLDER = "upload"
 REPORT_FOLDER = "reports"
 
@@ -99,20 +104,35 @@ def review1():
     with open(report_path, "r", encoding="utf-8") as f:
         review_text = f.read()
 
-        html = markdown.markdown(review_text)
+        review_text = "\n".join(
+            line for line in review_text.splitlines()
+            if line.strip()!= "" or not line.strip().startswith("-")
+        )
+
+        html = markdown.markdown(review_text, extensions=["fenced_code", "tables"])
         soup = BeautifulSoup(html, "html.parser")
         sections = {}
         current_title = None
 
         for tag in soup.find_all(["h2", "h3", "h4", "p", "ul", "ol", "pre", "blockquote"]):
-            if tag.name.startswith("h"):
+            if tag.name == "h2":
                 current_title = tag.text.strip()
-                sections[current_title.lower().replace(" ","_")] = {
+                key = current_title.lower().replace(" ","_")
+                sections[key] = {
                     "title": current_title,
                     "body": ""
                 }
             elif current_title:
-                sections[current_title.lower().replace(" ","_")]["body"] += str(tag)
+                key = current_title.lower().replace(" ","_")
+                sections[key]["body"] += str(tag)
+            # if tag.name.startswith("h"):
+            #     current_title = tag.text.strip()
+            #     sections[current_title.lower().replace(" ","_")] = {
+            #         "title": current_title,
+            #         "body": ""
+            #     }
+            # elif current_title:
+            #     sections[current_title.lower().replace(" ","_")]["body"] += str(tag)
     return render_template("review2.html", sections = sections)
 
 
@@ -182,53 +202,53 @@ def download_docx():
     with open(report_path, "r", encoding="utf-8") as f:
         review_text = f.read()
     
-    review_html = markdown(review_text)
+    # project_path = os.path.join(REPORT_FOLDER, "docx_project")
+    # os.makedirs(project_path, exist_ok=True)
+    # docx_path = os.path.join(REPORT_FOLDER, "latest_review.docx")
+    # generated_docx = os.path.join(project_path, "report.docx")
+    
+
+    # md_file_path = os.path.join(project_path, "report")
+    # with open(md_file_path, 'w', encoding="utf-8") as f:
+    #     f.write(review_text)
+    # project_base = os.path.splitext(md_file_path)[0]
+    review_html = markdown.markdown(review_text)
+    soup = BeautifulSoup(review_html, "html.parser")
 
     doc = Document()
     doc.add_heading("Code Review Report", level=1)
-    # lines = review_text.splitlines()
+    for element in soup.descendants:
+        if element.name == "h1":
+            doc.add_heading(element.get_text(), level=1)
+        elif element.name == "h2":
+            doc.add_heading(element.get_text(), level=2)
+        elif element.name == "h3":
+            doc.add_heading(element.get_text(), level=3)
+        elif element.name == "p":
+            doc.add_paragraph(element.get_text())
+        elif element.name == "ul":
+            for li in element.find_all("li"):
+                doc.add_paragraph(li.get_text(), style="List Bullet")
+        elif element.name == "ol":
+            for li in element.find_all("li"):
+                doc.add_paragraph(li.get_text(), style="List Number")
+        elif element.name == "code":
+            p = doc.add_paragraph()
+            run = p.add_run(element.get_text())
+            run.font.name = 'Courier New'
+            run.font.size = Pt(10)
 
-    # for line in lines:
-    #     line = line.strip()
-
-    #     if not line:
-    #         continue
-
-    #     # Headings
-    #     if line.startswith("# "):
-    #         doc.add_heading(line[2:].strip(), level=1)
-    #     elif line.startswith("## "):
-    #         doc.add_heading(line[3:].strip(), level=2)
-    #     elif line.startswith("### "):
-    #         doc.add_heading(line[4:].strip(), level=3)
-        
-        
-    #     # Bullet list
-    #     elif line.startswith("- ") or line.startswith("* "):
-    #         doc.add_paragraph(line[2:].strip(), style='List Bullet')
-
-    #     # Numbered list
-    #     elif re.match(r"^\d+\.\s", line):
-    #         content = re.sub(r"^\d+\.\s+", "", line)
-    #         doc.add_paragraph(content.strip(), style='List Number')
-
-    #     # Bold
-    #     elif "**" in line:
-    #         parts = re.split(r"(\*\*.*?\*\*)", line)
-    #         para = doc.add_paragraph()
-    #         for part in parts:
-    #             if part.startswith("**") and part.endswith("**"):
-    #                 run = para.add_run(part[2:-2])
-    #                 run.bold = True
-    #             else:
-    #                 para.add_run(part)
-        
-    #     # Normal paragraph
-    #     else:
-    #         doc.add_paragraph(line)
-    html2docx(review_html,doc)
-
-
+    # try:
+    #     md2docx = Markdown2docx(project_base)
+    #     md2docx.md2docx()
+    #     print("Docx generated...")
+    # except Exception as e:
+    #     return f"Conversion failed: {str(e)}",500
+    # if not os.path.exists(generated_docx):
+    #     return "Docx dile not generated. check markdown formatting", 500
+    # if os.path.exists(docx_path):
+    #     os.remove(docx_path)
+    # os.rename(generated_docx, docx_path)
     docx_path = os.path.join(REPORT_FOLDER, "latest_review.docx")
     doc.save(docx_path)
 

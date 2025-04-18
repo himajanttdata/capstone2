@@ -1,11 +1,11 @@
 function startReview() {
     window.location.href = "/index2"; // Redirect to the index page
 }
-
+ 
 const toggleBtn = document.getElementById('toggle-btn');
 const sidebar = document.getElementById('sidebar');
 const body = document.body;
-
+ 
 // Hamburger toggle
 toggleBtn.addEventListener('click', () => {
 sidebar.classList.toggle('active');
@@ -16,7 +16,7 @@ body.classList.toggle('dark-mode');
 // Optional: Save preference
 localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
 }
-
+ 
 // Load saved mode
 window.onload = function () {
 const savedMode = localStorage.getItem('darkMode');
@@ -24,7 +24,7 @@ if (savedMode === 'true') {
 body.classList.add('dark-mode');
 }
 };
-
+ 
 function toggleSidebar() {
     const sidebar = document.getElementById("sidebar");
     if (sidebar.style.left === "0px") {
@@ -33,54 +33,54 @@ function toggleSidebar() {
         sidebar.style.left = "0px";
     }
 }
-
-
+ 
+ 
 document.addEventListener("DOMContentLoaded", () => {
     // Load saved theme
     if (localStorage.getItem("theme") === "dark") {
         document.body.classList.add("dark-mode");
     }
-
+ 
     // Attach dark mode toggle button
     const darkModeBtn = document.getElementById("darkModeToggle");
     if (darkModeBtn) {
         darkModeBtn.addEventListener("click", toggleDarkMode);
     }
 });
-
+ 
 // function analyzeCode() {
 //     let githubURL = document.getElementById("github-url").value;
 //     let files = document.getElementById("file-upload").files;
-
+ 
 //     if (!githubURL && files.length === 0) {
 //         alert("Please provide a GitHub URL or upload files.");
 //         return;
 //     }
-
+ 
 //     // Store data and navigate to review page
 //     sessionStorage.setItem("githubURL", githubURL);
 //     sessionStorage.setItem("uploadedFiles", files.length);
-
+ 
 //     window.location.href = "/review2";
 // }
 function analyzeCode() {
     let githubURL = document.getElementById("github-url").value;
     let files = document.getElementById("file-upload").files;
-
+ 
     if (!githubURL && files.length === 0) {
         alert("Please provide a GitHub URL or upload files.");
         return;
     }
-
+ 
     let formData = new FormData();
     if (githubURL) {
         formData.append("repo_url", githubURL);
     }
-    
+   
     for (let i = 0; i < files.length; i++) {
         formData.append("file", files[i]);
     }
-
+ 
     // Send data to backend
     fetch("/submit", {
         method: "POST",
@@ -93,39 +93,39 @@ function analyzeCode() {
         } else {
             alert("Error processing your request. ");
         }
-    
+   
     })
     .catch(error => {
         console.error("Error:", error);
         alert("Failed to analyze the code.");
     });
 }
-
+ 
 async function fetchRepoFiles() {
     const githubURL = document.getElementById("github-url").value.trim();
-
+ 
     if (!githubURL) {
         alert("Please enter a GitHub repository URL.");
         return;
     }
-
+ 
     try {
-        // ✅ Strip .git if present
+        // Strip .git if present
         const cleanURL = githubURL.replace(/\.git$/, "");
-        
-        // ✅ Extract owner and repo from the URL
+       
+        // Extract owner and repo from the URL
         const match = cleanURL.match(/^https:\/\/github\.com\/([^\/]+)\/([^\/]+)$/);
         if (!match) throw new Error("Invalid GitHub repository URL.");
-
+ 
         const owner = match[1];
         const repo = match[2];
-
-        // ✅ GitHub API endpoint to get top-level contents
+ 
+        // GitHub API endpoint to get top-level contents
         const apiURL = `https://api.github.com/repos/${owner}/${repo}/contents`;
-
+ 
         const response = await fetch(apiURL);
         if (!response.ok) throw new Error("Failed to fetch repo contents");
-
+ 
         const files = await response.json();
         displayFiles(files);
     } catch (error) {
@@ -133,50 +133,97 @@ async function fetchRepoFiles() {
         alert("Failed to fetch files. Make sure the URL is public and correct.");
     }
 }
-
+ 
 function displayFiles(files) {
     const fileListDiv = document.getElementById("file-list");
-    fileListDiv.innerHTML = "<h3>📁 Files in Repository:</h3>";
-
+    fileListDiv.innerHTML = "<h3>Files in Repository:</h3>";
+ 
     const ul = document.createElement("ul");
-
+ 
     files.forEach(file => {
-        const li = document.createElement("li");
-        const link = document.createElement("a");
-        link.href = file.html_url;
-        link.textContent = file.name;
-        link.target = "_blank";
-        li.appendChild(link);
-        ul.appendChild(li);
+        if (file.type === "file") {  // Only include files, not folders
+            const li = document.createElement("li");
+ 
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = file.download_url;
+            checkbox.classList.add("file-checkbox");
+ 
+            const link = document.createElement("a");
+            link.href = file.html_url;
+            link.textContent = file.name;
+            link.target = "_blank";
+ 
+            li.appendChild(checkbox);
+            li.appendChild(link);
+            ul.appendChild(li);
+        }
     });
-
+ 
     fileListDiv.appendChild(ul);
+ 
+    const analyzeBtn = document.createElement("button");
+    analyzeBtn.textContent = "Analyze Selected Files";
+    analyzeBtn.onclick = analyzeSelectedFiles;
+    analyzeBtn.classList.add("analyze-btn");
+ 
+    fileListDiv.appendChild(analyzeBtn);
 }
-
-
-
+ 
+function analyzeSelectedFiles() {
+    const selectedCheckboxes = document.querySelectorAll(".file-checkbox:checked");
+    if (selectedCheckboxes.length === 0) {
+        alert("Please select at least one file.");
+        return;
+    }
+ 
+    const selectedURLs = Array.from(selectedCheckboxes).map(cb => cb.value);
+ 
+    fetch("/analyze_selected", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ file_urls: selectedURLs })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = "/review2";
+        } else {
+            alert("Error analyzing selected files.");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Failed to analyze the selected files.");
+    });
+}
+ 
+ 
+ 
 function goBack() {
     window.location.href = "/intro2";
 }
-
+ 
 function goBack() {
     window.location.href = "/index2";
 }
-
+ 
 // function downloadReviewReport() {
 //     // Collect review content from the DOM
 //     const bugs = document.getElementById("bug-list").innerText;
 //     const optimizations = document.getElementById("optimization-list").innerText;
 //     const docs = document.getElementById("documentation").innerText;
 //     const reframing = document.getElementById("reframing-list").innerText;
-
+ 
 //     // Create text content for the file
 //     const content = `AI Code Review Report\n\n` +
-//         `🪲 Detected Issues & Bugs:\n${bugs}\n\n` +
-//         `🚀 Optimization Suggestions:\n${optimizations}\n\n` +
-//         `📄 Auto-Generated Documentation:\n${docs}\n\n` +
-//         `🔧 Code Reframing Suggestions:\n${reframing}`;
-
+//         `Detected Issues & Bugs:\n${bugs}\n\n` +
+//         `Optimization Suggestions:\n${optimizations}\n\n` +
+//         `Auto-Generated Documentation:\n${docs}\n\n` +
+//         `Code Reframing Suggestions:\n${reframing}`;
+ 
 //     // Create a blob and download link
 //     const blob = new Blob([content], { type: "text/plain" });
 //     const url = URL.createObjectURL(blob);
@@ -206,5 +253,3 @@ function downloadDOCX() {
     })
     .catch(error => console.error('Error downloading DOCX:', error));
 }
-
-

@@ -109,7 +109,7 @@ provide feedback in simple way. don't get in so deep
 
     def run_optimization(self, code):
         system_prompt = """You are a performance Optimization expert. Suggest optimizations to improve speed, memory usage, or best practices for the following code.
-        Only include practical improvements. Also give the optimized version of the code."""
+        Only include practical improvements. After giving you suggestions do not forget to give optimized version of the given code based on the given suggestions"""
         prompt = f"""code:{code}"""
         return self.query(prompt,system_prompt)
 
@@ -117,21 +117,21 @@ provide feedback in simple way. don't get in so deep
         system_prompt = f"""
         you are the report generator. Using the analysis results below, create a detailed and structured markdown review report for the repository "{repo_name}."""
         prompt = f"""
-### Quality Analysis:
+## Quality Analysis:
 {quality}
 
-### Bug Detection:
+## Bug Detection:
 {bugs}
 
-### Optimization Suggestions:
+## Optimization Suggestions:
 {optimizations}
 
-### Summary:
+## Summary:
 
 - Code Quality: [Excellent / Good / Needs Improvement]
 - Bugs: [None/Minor/Major]
 - Optimization: [Not Required/ Recommended/ Essential]
-### Conclusion:
+## Conclusion:
 Provide a conclusion on whether the code is Production-ready or needs further work.
 Follow this template given STRICTLY do not add any other sections.
 """

@@ -364,9 +364,12 @@ pre {
     white-space: pre-wrap;
     word-wrap: break-word;
     font-size: 14px;
+    font-family: 'Courier New', Courier, monospace;
     border-left: 5px solid #01435a;
     max-height: 300px;
     overflow-y: auto;
+    text-align: left;
+
 }
 
 
