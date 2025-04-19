@@ -347,7 +347,7 @@ main {
 .section {
     width: 50%;
     align-self: center;
-    background-color: #ffffff; /* Solid white background */
+    background-color: #c0eaee; /* Solid white background */
     padding: 25px;
     border-radius: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
@@ -356,6 +356,7 @@ main {
     overflow-x: auto;
     word-wrap: break-word;
 }
+
 
 pre {
     background: #c0eaee;

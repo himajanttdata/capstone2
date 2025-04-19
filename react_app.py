@@ -161,6 +161,7 @@ def review2():
         # Append the last section
         if current_section:
             sections.append(current_section)
+        # print("Sections: ",sections)
 
     return jsonify(sections)
 
