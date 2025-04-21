@@ -108,7 +108,7 @@ Ensure clarity and completeness."""
     - Standards Compliance Fixes
     - Security Fixes
     - Improved Documentation
-    The final code should be production-ready."""
+    The final code should be production-ready. ADD THE OPTIMIZED CODE MANDATORILY DO NOT JUST GIVE SUGGESTIONS."""
         prompt = f"""
 
         --- Reviews ---
@@ -120,8 +120,19 @@ Ensure clarity and completeness."""
         return self.query(prompt, system_prompt)
 
     def run_report_generation(self, quality, bugs, standards, security, docstrings, tests, final_code, repo_name):
-        system_prompt = f"""
-You are the report generator. Use the analysis results below to create a structured and comprehensive markdown review report for the repository "{repo_name}".
+        system_prompt = f"""You are the report generator. Use the analysis results below to create a structured and comprehensive markdown review report for the repository "{repo_name}".
+
+Follow these formatting rules **strictly**:
+- Use `###` for section headings
+- Use bullet points (`-`) instead of numbered lists
+-DO NOT USE NUMBERED LISTS
+- Use bold for keywords and issues (e.g., **Fix**, **Issue**, **Suggestion**)
+- Format code blocks using triple backticks and specify the language
+- Do NOT include HTML tags or numbered lists
+- Do NOT invent any sections outside the ones provided
+
+---
+
 
 ### Quality Analysis:
 {quality}

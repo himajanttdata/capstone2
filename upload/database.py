@@ -24,10 +24,12 @@ def init_db2():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS querydb (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
             query TEXT,
             lm_response TEXT,
             category TEXT,
-            sentiment TEXT
+            sentiment TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP      
         )
     """)
     conn.commit()
@@ -46,15 +48,38 @@ def log_user_data(user_name: str, email: str, password: str):
     conn.commit()
     conn.close()
 
-def log_query(query: str, lm_response: str, category: str, sentiment: str):
+def log_query(user_id: str, query: str, lm_response: str, category: str, sentiment: str):
     conn = sqlite3.connect(DB_FILE2)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO querydb (query, lm_response, category, sentiment)
+        INSERT INTO querydb (user_id, query, lm_response, category, sentiment)
         VALUES (?, ?, ?, ?)
-    """, (query, lm_response, category, sentiment))
+    """, (user_id, query, lm_response, category, sentiment))
     conn.commit()
     conn.close()
+
+def get_user_history(user_id, limit=5):
+   conn = sqlite3.connect(DB_FILE2)
+   cursor = conn.cursor()
+   cursor.execute(
+       "SELECT query, lm_response FROM querydb WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?",
+       (user_id, limit)
+   )
+   history = cursor.fetchall()
+   conn.close()
+   messages = []
+   for query, response in reversed(history):
+       messages.append({"role": "user", "content": query})
+       messages.append({"role": "assistant", "content": response})
+   return messages
+
+def get_user_id(email):
+   conn = sqlite3.connect(DB_FILE)
+   cursor = conn.cursor()
+   cursor.execute("SELECT id FROM user_data WHERE email = ?", (email,))
+   user = cursor.fetchone()
+   conn.close()
+   return user[0] if user else None
 
 
 def check_db_for_query(query):

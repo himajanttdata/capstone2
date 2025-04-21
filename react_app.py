@@ -100,30 +100,41 @@ def analyze_selected():
  
     return jsonify({"success": False, "error": "Failed to process selected files."})
 
+# @app.route('/review2', methods=["GET"])
+# def review2():
+#     report_path = os.path.join(REPORT_FOLDER, "latest_review.txt")
+#     if not os.path.exists(report_path):
+#         return jsonify({"error": "No report found."}), 404
+
+#     with open(report_path, "r", encoding="utf-8") as f:
+#         markdown_content = f.read()
+
+#     sections = []
+#     current_section = None
+#     for line in markdown_content.split('\n'):
+#         if line.startswith('##'):
+#             if current_section:
+#                 sections.append(current_section)
+#             current_section = {
+#                 'title': line.replace('##', '').strip(),
+#                 'body': ''
+#             }
+#         elif current_section:
+#             current_section['body'] += line + '\n'
+
+#     if current_section:
+#         sections.append(current_section)
+
+#     # Convert markdown body to HTML
+#     for section in sections:
+#         section['body'] = markdown.markdown(section['body'])
+
+#     return jsonify(sections)
+
+
 
 @app.route("/review2", methods=["GET"])
 def review2():
-    # report_path = os.path.join(REPORT_FOLDER, "latest_review.txt")
-    # if not os.path.exists(report_path):
-    #     return jsonify({"error": "No report found."}), 404
-
-    # with open(report_path, "r", encoding="utf-8") as f:
-    #     review_text = f.read()
-
-    # html = markdown.markdown(review_text)
-    # soup = BeautifulSoup(html, "html.parser")
-    # sections = {}
-    # current_title = None
-
-    # for tag in soup.find_all(["h2", "h3", "h4", "p", "ul", "ol", "pre", "blockquote"]):
-    #     if tag.name.startswith("h"):
-    #         current_title = tag.text.strip()
-    #         sections[current_title.lower().replace(" ", "_")] = {
-    #             "title": current_title,
-    #             "body": ""
-    #         }
-    #     elif current_title:
-    #         sections[current_title.lower().replace(" ", "_")]["body"] += str(tag)
 
     report_path = os.path.join(REPORT_FOLDER, "latest_review.txt")
     if not os.path.exists(report_path):
@@ -138,14 +149,14 @@ def review2():
             if line.strip() != "" or not line.strip().startswith("-")
         )
 
-        html = markdown.markdown(review_text, extensions=["fenced_code", "tables"])
+        html = markdown.markdown(review_text, extensions=["extra"])
         soup = BeautifulSoup(html, "html.parser")
 
         sections = []
         current_section = None
 
         for tag in soup.find_all(["h2", "h3", "h4", "p", "ul", "ol", "pre", "blockquote"]):
-            if tag.name == "h2":
+            if tag.name == "h3":
                 # Start a new section
                 if current_section:
                     sections.append(current_section)
@@ -156,7 +167,7 @@ def review2():
                     "body": ""
                 }
             elif current_section:
-                current_section["body"] += str(tag)
+                current_section["body"] += f"{str(tag)}\n"
 
         # Append the last section
         if current_section:
@@ -196,23 +207,23 @@ def download_docx():
         elif element.name == "ol":
             for li in element.find_all("li"):
                 doc.add_paragraph(li.get_text(), style="List Number")
-        # elif element.name == "pre":
-        #     code_text = element.get_text()
-        #     para = doc.add_paragraph()
-        #     run = para.add_run(code_text)
-        #     run.font.name = "Courier New"
-        #     run.font.size = Pt(10)
-        #     para.paragraph_format.space_before = Pt(6)
-        #     para.paragraph_format.space_after = Pt(6)
+        elif element.name == "pre":
+            code_text = element.get_text()
+            para = doc.add_paragraph()
+            run = para.add_run(code_text)
+            run.font.name = "Courier New"
+            run.font.size = Pt(10)
+            para.paragraph_format.space_before = Pt(6)
+            para.paragraph_format.space_after = Pt(6)
 
-        # elif element.name == "code":
-        #     # p = doc.add_paragraph()
-        #     # run = p.add_run(element.get_text())
-        #     # run.font.name = 'Courier New'
-        #     # run.font.size = Pt(10)
-        #     run = doc.add_paragraph().add_run(element.get_text())
-        #     run.font.name = "Courier New"
-        #     run.font.size = Pt(10)
+        elif element.name == "code":
+            # p = doc.add_paragraph()
+            # run = p.add_run(element.get_text())
+            # run.font.name = 'Courier New'
+            # run.font.size = Pt(10)
+            run = doc.add_paragraph().add_run(element.get_text())
+            run.font.name = "Courier New"
+            run.font.size = Pt(10)
 
     docx_path = os.path.join(REPORT_FOLDER, "VeriCODE_Review_Report.docx")
     doc.save(docx_path)

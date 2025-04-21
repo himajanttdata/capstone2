@@ -61,6 +61,7 @@ def unittest_suggestion_agent(state):
     return {"unittest_report": tests}
 
 def final_code_generation_agent(state):
+    print("Entered code generator")
     final_code = engine.run_final_code_generator(
         quality=state["quality_analysis"],
         bugs=state["bug_report"],
@@ -69,7 +70,9 @@ def final_code_generation_agent(state):
         security= state["security_report"],
         docstrings=state["docstring_report"],
     )
+    print("code generation completed")
     return {"final_code": final_code}
+
 
 
 def report_generation_agent(state):
