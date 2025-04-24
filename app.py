@@ -157,7 +157,7 @@ def submit():
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 file_content = f.read()
 
-            from template_reader import TemplateReader
+            from chunking_engine import TemplateReader
             template_reader = TemplateReader()
             all_chunks = template_reader.chunk_code(file_content)
             repo_name = uploaded_file.filename

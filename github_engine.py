@@ -3,8 +3,8 @@ import git
 import glob
 import faiss
 import numpy as np
-from template_reader import TemplateReader
-from doc_generation import DocGeneration
+from chunking_engine import Chunking
+from embedding_engine import Embedding
 
 class GitHubEngine:
     def __init__(self, base_dir="repos"):
@@ -37,15 +37,15 @@ class GitHubEngine:
         repo_name, repo_path = self.clone_repo(repo_url)
         code_files = self.get_code_files(repo_path)
 
-        template_reader = TemplateReader()
+        chunking_engine = Chunking()
         all_chunks = []
         for file in code_files:
             with open(file, "r", encoding="utf-8", errors="ignore") as f:
                 code = f.read()
-                chunks = template_reader.chunk_code(code)
+                chunks = chunking_engine.chunk_code(code)
                 all_chunks.extend(chunks)
 
-        doc_gen = DocGeneration()
+        doc_gen = Embedding()
         doc_gen.store_vectors(repo_name, all_chunks)
 
         return repo_name, all_chunks

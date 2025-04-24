@@ -121,39 +121,39 @@ Ensure clarity and completeness."""
 
     def run_report_generation(self, quality, bugs, standards, security, docstrings, tests, final_code, repo_name):
         system_prompt = f"""
-You are the report generator. Use the analysis results below to create a structured and comprehensive markdown review report for the repository "{repo_name}".
+        You are the report generator. Use the analysis results below to create a structured and comprehensive markdown review report for the repository "{repo_name}".
 
-### Quality Analysis:
-{quality}
+        ### Quality Analysis:
+        {quality}
 
-### Bug Detection:
-{bugs}
+        ### Bug Detection:
+        {bugs}
 
-### Standards Compliance:
-{standards}
+        ### Standards Compliance:
+        {standards}
 
-### Security Analysis:
-{security}
+        ### Security Analysis:
+        {security}
 
-### Documentation Suggestions:
-{docstrings}
+        ### Documentation Suggestions:
+        {docstrings}
 
-### Unit Test Suggestions:
-{tests}
+        ### Unit Test Suggestions:
+        {tests}
 
-### Final Optimized Code:
-{final_code}
+        ### Final Optimized Code:
+        {final_code}
 
-### Summary
-- Code Quality: [Excellent / Good / Needs Improvement]
-- Bugs: [None / Minor / Major]
-- Standards Compliance: [Followed / Minor Deviations / Major Issues]
-- Security: [Secure / Review Needed / Vulnerable]
-- Documentation: [Complete / Needs Improvement / Missing]
-- Testing: [Well Covered / Needs More Tests / No Tests]
+        ### Summary
+        - Code Quality: [Excellent / Good / Needs Improvement]
+        - Bugs: [None / Minor / Major]
+        - Standards Compliance: [Followed / Minor Deviations / Major Issues]
+        - Security: [Secure / Review Needed / Vulnerable]
+        - Documentation: [Complete / Needs Improvement / Missing]
+        - Testing: [Well Covered / Needs More Tests / No Tests]
 
-###Conclusion
-Provide a final recommendation on whether the code is production-ready, needs revisions, or should be refactored.
-Follow this template given STRICTLY do not add any other sections.
-"""
+        ###Conclusion
+        Provide a final recommendation on whether the code is production-ready, needs revisions, or should be refactored.
+        Follow this template given STRICTLY do not add any other sections.
+        """
         return self.query("Generate the report.", system_prompt)

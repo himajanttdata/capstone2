@@ -41,130 +41,121 @@ class ResponderEngine:
             return f"Error communicating with Azure OpenAI: {str(e)}"
 
     def run_quality_analysis(self, code, repo_name):
-        system_prompt = f"""You are a code reviewer. Analyze this code from {repo_name} for general quality and provide feedback on:
-- Is the code readable and modular?
-- Are naming conventions followed?
-- Is it well-structured?
-Just provide your feedback on the quality do not add any Suggestions of Improvements here."""
+        system_prompt = f"""You are a code reviewer. Analyze this code from {repo_name} and provide a brief summary of its quality in terms of structure, readability, and naming.
+        Use no more than 4 bullet points. No improvement suggestions."""
         prompt = f"""Code to Analyze: {code}"""
         return self.query(prompt, system_prompt)
 
     def run_bug_detection(self, code):
         system_prompt = """You are a bug detection expert. Analyze the following code and identify any possible bugs, logic errors, or syntax issues.
-For each bug, mention the line number, explain the issue, and suggest a fix."""
+
+                        For each issue:
+                        1. **Specify the line number** where the bug occurs.
+                        2. **Provide the exact code** causing the issue on that line.
+                        3. **Explain the problem** clearly.
+                        4. Suggest a **fixed version of the code** for that specific line.
+
+                        Ensure that you are providing clear, detailed explanations of why the code is problematic, and offer the correct way to fix it."""
         prompt = f"code: {code}"
         return self.query(prompt, system_prompt)
 
-#     def run_optimization(self, code):
-#         system_prompt = """You are a performance optimization expert. Suggest optimizations to improve speed, memory usage for the following code.
-# Only include practical improvements."""
+    def run_optimization(self, code):
+        system_prompt = """You are an optimization expert. Summarize 3–5 practical suggestions to improve performance, memory usage, or fix potential security issues.
+        Keep each point short and output in bullet-point HTML format."""
+        prompt = f"code: {code}"
+        return self.query(prompt, system_prompt)
+
+#     def run_standards_compliance(self, code):
+#         system_prompt = """You are a Standard Compliance Agent. Your task is to review the provided code and ensure it adheres to the coding standards and best practices of the respective programming language.
+#          The languages and their standards are as follows:
+#          Python: PEP8
+#         Java: Google Java Style Guide
+#         JavaScript: Airbnb JavaScript Style Guide
+#         C++: C++ Core Guidelines
+#         HTML: W3C HTML5 Specification"""
 #         prompt = f"code: {code}"
 #         return self.query(prompt, system_prompt)
 
-    def run_standards_compliance(self, code):
-        system_prompt = """You are a Standard Compliance Agent. Your task is to review the provided code and ensure it adheres to the coding standards and best practices of the respective programming language.
-         The languages and their standards are as follows:
-         Python: PEP8
-        Java: Google Java Style Guide
-        JavaScript: Airbnb JavaScript Style Guide
-        C++: C++ Core Guidelines
-        HTML: W3C HTML5 Specification"""
-        prompt = f"code: {code}"
-        return self.query(prompt, system_prompt)
+#     def run_security_analysis(self, code):
+#         system_prompt = """You are a Security Analysis Agent. Your task is to review the provided code and ensure it is secure,
+#           free from data leaks, memory leaks, and vulnerabilities. The languages and their security standards are as follows:
+#           Python: OWASP Python Security Guidelines
+#         Java: OWASP Java Security Guidelines
+#         JavaScript: OWASP JavaScript Security Guidelines
+#         C++: CERT C++ Secure Coding Standard
+#         HTML: OWASP HTML Security Guidelines"""
+#         prompt = f"code: {code}"
+#         return self.query(prompt, system_prompt)
 
-    def run_security_analysis(self, code):
-        system_prompt = """You are a Security Analysis Agent. Your task is to review the provided code and ensure it is secure,
-          free from data leaks, memory leaks, and vulnerabilities. The languages and their security standards are as follows:
-          Python: OWASP Python Security Guidelines
-        Java: OWASP Java Security Guidelines
-        JavaScript: OWASP JavaScript Security Guidelines
-        C++: CERT C++ Secure Coding Standard
-        HTML: OWASP HTML Security Guidelines"""
-        prompt = f"code: {code}"
-        return self.query(prompt, system_prompt)
-
-    def run_docstring_generation(self, code):
-        system_prompt = """You are a code documentation assistant. Add or improve docstrings for all functions and classes in the given code.
-Ensure clarity and completeness."""
-        prompt = f"code: {code}"
-        return self.query(prompt, system_prompt)
+#     def run_docstring_generation(self, code):
+#         system_prompt = """You are a code documentation assistant. Add or improve docstrings for all functions and classes in the given code.
+# Ensure clarity and completeness."""
+#         prompt = f"code: {code}"
+#         return self.query(prompt, system_prompt)
 
     def run_unit_test_suggestions(self, code):
-        system_prompt = """You are a Unit Test Case Suggestion Agent. Your task is to review the provided codebase and suggest relevant unit test cases
-        to ensure the code functions correctly and handles edge cases. The languages and their testing frameworks are as follows:
-
-        Python: unittest or pytest
-        Java: JUnit
-        JavaScript: Jest or Mocha
-        C++: Google Test
-        HTML/JavaScript (Frontend): Jasmine or Mocha with Chai"""
+        system_prompt = """You are a unit test case suggestion agent. Suggest up to 5 essential unit test cases for the given code using the respective testing framework.
+        Keep suggestions short. Output should be in HTML list format."""
         prompt = f"code: {code}"
         return self.query(prompt, system_prompt)
     
-    def run_final_code_generator(self, quality, bugs, standards, security, docstrings):
-        system_prompt = """You are a senior software engineer. Generate an improved version of the code by incorporating:
-    - Code Quality Suggestions
-    - Bug Fixes
-    - Standards Compliance Fixes
-    - Security Fixes
-    - Improved Documentation
-    The final code should be production-ready. ADD THE OPTIMIZED CODE MANDATORILY DO NOT JUST GIVE SUGGESTIONS."""
+    def run_final_code_generator(self, code, quality, bugs, optimizations):
+        system_prompt =  f"""You are a senior software engineer. Create a concise and optimized version of the original code, based on the provided quality issues, bug fixes, and optimizations.
+        Limit comments and use clean formatting. Return code as an HTML-formatted code block. If the {code} is HTML then generate the optimized code for this section and return it in an ESCAPED FORMAT,
+        so it can be rendered as visible code inside a <pre><code> block in HTML."""
         prompt = f"""
+        code: {code}
 
         --- Reviews ---
         Quality: {quality}
         Bugs: {bugs}
-        Standards: {standards}
-        Security: {security}
-        Docstrings: {docstrings}"""
+        optimizations: {optimizations}
+        return self.query(prompt, system_prompt)"""
+
         return self.query(prompt, system_prompt)
 
-    def run_report_generation(self, quality, bugs, standards, security, docstrings, tests, final_code, repo_name):
-        system_prompt = f"""You are the report generator. Use the analysis results below to create a structured and comprehensive markdown review report for the repository "{repo_name}".
+    def run_report_generation(self, quality, bugs, optimizations, tests, final_code, repo_name):
+        system_prompt = f"""You are an HTML report generator. Generate a clean, minimal HTML report for the repo {repo_name} using the following sections: Quality Analysis, Bug Detection, Optimizations, Test Suggestions, Final Code, Summary, and Conclusion.
 
-Follow these formatting rules **strictly**:
-- Use `###` for section headings
-- Use bullet points (`-`) instead of numbered lists
--DO NOT USE NUMBERED LISTS
-- Use bold for keywords and issues (e.g., **Fix**, **Issue**, **Suggestion**)
-- Format code blocks using triple backticks and specify the language
-- Do NOT include HTML tags or numbered lists
-- Do NOT invent any sections outside the ones provided
+                        Strict HTML Formatting Rules:
+                        - Use <h3> for main sections and <h4> for sub-sections.
+                        - Use <ul><li> for bullet points.
+                        - Highlight keywords with <strong>.
+                        - Format code with <pre><code class='language-{{lang}}'></code></pre>.
+                        - DO NOT use Markdown or HTML table tags.
+                        - DO NOT invent or skip any section.
 
----
+                        Ensure the report is short and structured for easy rendering on a UI.
+                        """
+        prompt = f"""
+                        <h3>Quality Analysis</h3>
+                        {quality}
 
+                        <h3>Bug Detection</h3>
+                        {bugs}
 
-### Quality Analysis:
-{quality}
+                        <h3>Optimization Suggestions</h3>
+                        {optimizations}
 
-### Bug Detection:
-{bugs}
+                        <h3>Unit Test Suggestions</h3>
+                        {tests}
 
-### Standards Compliance:
-{standards}
+                        <h3>Final Optimized Code</h3>
+                        <pre><code class='language-python'>
+                        {final_code}
+                        </code></pre>
 
-### Security Analysis:
-{security}
+                        <h3>Summary</h3>
+                        <ul>
+                        <li><strong>Code Quality:</strong> [Excellent / Good / Needs Improvement]</li>
+                        <li><strong>Bugs:</strong> [None / Minor / Major]</li>
+                        <li><strong>Optimizations:</strong> [None / Minor / Major]</li>
+                        <li><strong>Testing:</strong> [Well Covered / Needs More Tests / No Tests]</li>
+                        </ul>
 
-### Documentation Suggestions:
-{docstrings}
+                        <h3>Conclusion</h3>
+                        <p>Provide a short recommendation on whether the code is production-ready, needs revisions, or should be refactored.</p>
+                        """
 
-### Unit Test Suggestions:
-{tests}
-
-### Final Optimized Code:
-{final_code}
-
-### Summary
-- Code Quality: [Excellent / Good / Needs Improvement]
-- Bugs: [None / Minor / Major]
-- Standards Compliance: [Followed / Minor Deviations / Major Issues]
-- Security: [Secure / Review Needed / Vulnerable]
-- Documentation: [Complete / Needs Improvement / Missing]
-- Testing: [Well Covered / Needs More Tests / No Tests]
-
-###Conclusion
-Provide a final recommendation on whether the code is production-ready, needs revisions, or should be refactored.
-Follow this template given STRICTLY do not add any other sections.
-"""
-        return self.query("Generate the report.", system_prompt)
+        
+        return self.query(prompt, system_prompt)
