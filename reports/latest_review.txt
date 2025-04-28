@@ -1,72 +1,100 @@
 ```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>HTML Report for sample.html</title>
-</head>
-<body>
-    <h3>Quality Analysis</h3>
-    <ul>
-        <li><strong>Structure:</strong> The code follows a basic HTML structure with a <code>&lt;!DOCTYPE html&gt;</code> declaration, <code>&lt;html&gt;</code>, <code>&lt;body&gt;</code>, and <code>&lt;p&gt;</code> tags appropriately nested. It is simple and valid for rendering content.</li>
-        <li><strong>Readability:</strong> The code is easy to read due to its minimalistic nature and consistent indentation.</li>
-        <li><strong>Naming:</strong> No specific naming is required in this example, but the use of generic <code>&lt;p&gt;</code> tags without additional identifiers or classes limits its scalability for more complex applications.</li>
-        <li><strong>Purpose Clarity:</strong> The code clearly serves to display two paragraphs, but it lacks semantic or descriptive elements that might provide additional context or functionality.</li>
-    </ul>
+<h3>Quality Analysis</h3>
+<ul>
+    <li><strong>Structure:</strong> The code is functionally structured with clear separation of concerns for adding, viewing, and deleting tasks. However, embedding the main loop directly in the script limits reusability and testing.</li>
+    <li><strong>Readability:</strong> The code is easy to follow, but minor indentation issues (e.g., `tasks.append(task)`) reduce clarity.</li>
+    <li><strong>Naming:</strong> Function and variable names are descriptive, but `task_number` could be misinterpreted as a task ID rather than its position in the list.</li>
+    <li><strong>Error Handling:</strong> Basic input validation is present, but lacks handling for invalid inputs (e.g., non-integer values for `task_number` or `choice`). This could lead to runtime errors.</li>
+</ul>
 
-    <h3>Bug Detection</h3>
-    <h4>Issue 1</h4>
-    <ul>
-        <li><strong>Problem:</strong> The HTML content is missing a <code>&lt;head&gt;</code> section. While optional in HTML5, it is best practice to include it for metadata, styles, or scripts.</li>
-        <li><strong>Suggested Fix:</strong> Add a <code>&lt;head&gt;</code> section to the HTML content.</li>
-    </ul>
-    <h4>Issue 2</h4>
-    <ul>
-        <li><strong>Problem:</strong> The HTML content is stored as a single string inside a Python list. This approach may not be optimal for programmatic manipulation.</li>
-        <li><strong>Suggested Fix:</strong> Store the HTML content as a single string or use a list for multiple documents, ensuring proper formatting.</li>
-    </ul>
+<h3>Bug Detection</h3>
+<ul>
+    <li><strong>Indentation Errors:</strong> Several blocks (e.g., `tasks.append(task)`, `if not tasks`) have inconsistent indentation, causing `IndentationError`.</li>
+    <li><strong>Input Validation:</strong> No handling for invalid inputs (e.g., non-integer values for `task_number`), which can raise `ValueError`.</li>
+    <li><strong>Graceful Exit:</strong> The `while True` loop does not handle unexpected termination (e.g., `KeyboardInterrupt`), leading to abrupt crashes.</li>
+</ul>
 
-    <h3>Optimization Suggestions</h3>
-    <ul>
-        <li>Use semantic HTML elements like <code>&lt;article&gt;</code> or <code>&lt;section&gt;</code> for better structure and accessibility.</li>
-        <li>Compress the HTML file using tools like gzip to minimize memory usage.</li>
-        <li>Add a Content Security Policy (CSP) in the HTTP header to prevent cross-site scripting (XSS) attacks.</li>
-        <li>Ensure proper indentation and remove unnecessary whitespace to improve readability and reduce file size.</li>
-        <li>Serve the HTML over HTTPS to protect data integrity and prevent security vulnerabilities.</li>
-    </ul>
+<h3>Optimization Suggestions</h3>
+<ul>
+    <li>Use input validation to prevent crashes: Validate user inputs (e.g., `task_number` in `delete_task`) to ensure they are integers and within the valid range.</li>
+    <li>Optimize memory usage: Avoid using global variables like `tasks`. Pass it as a parameter to functions or encapsulate it in a class.</li>
+    <li>Prevent code injection: Sanitize user inputs (e.g., `task`) to avoid potential security risks, especially if tasks are stored or processed further.</li>
+    <li>Enhance user experience: Add confirmation prompts for destructive actions like deleting tasks to prevent accidental deletions.</li>
+    <li>Implement graceful exit: Use a `try-except` block to handle unexpected errors and ensure the program exits cleanly without crashing.</li>
+</ul>
 
-    <h3>Unit Test Suggestions</h3>
-    <ul>
-        <li>Test if the HTML document starts with a valid <code>&lt;!DOCTYPE html&gt;</code> declaration.</li>
-        <li>Test if the <code>&lt;html&gt;</code> and <code>&lt;/html&gt;</code> tags are properly opened and closed.</li>
-        <li>Test if the <code>&lt;body&gt;</code> and <code>&lt;/body&gt;</code> tags are properly opened and closed.</li>
-        <li>Test if there are exactly two <code>&lt;p&gt;</code> tags in the document.</li>
-        <li>Test if the content of the <code>&lt;p&gt;</code> tags matches the expected text.</li>
-    </ul>
+<h3>Unit Test Suggestions</h3>
+<ul>
+    <li>Test adding a task: Ensure that the <code>add_task</code> function correctly adds a task to the <code>tasks</code> list.</li>
+    <li>Test viewing tasks when the list is empty: Verify that <code>view_tasks</code> outputs "No tasks in the list."</li>
+    <li>Test viewing tasks when the list has items: Confirm that <code>view_tasks</code> displays all tasks with correct numbering.</li>
+    <li>Test deleting a valid task: Check if <code>delete_task</code> removes the correct task and updates the list.</li>
+    <li>Test deleting an invalid task number: Ensure that <code>delete_task</code> handles invalid indices gracefully and outputs the correct error message.</li>
+</ul>
 
-    <h3>Final Code</h3>
-    <pre><code class='language-html'>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sample Page</title>
-</head>
-<body>
-    <p>This is a paragraph.</p>
-    <p>This is another paragraph.</p>
-</body>
-</html>
-    </code></pre>
+<h3>Final Optimized Code</h3>
+<pre><code class='language-python'>
+# Optimized To-Do List Application
 
-    <h3>Summary</h3>
-    <ul>
-        <li><strong>Code Quality:</strong> Good</li>
-        <li><strong>Bugs:</strong> Minor</li>
-        <li><strong>Optimizations:</strong> Minor</li>
-        <li><strong>Testing:</strong> Needs More Tests</li>
-    </ul>
+def add_task(tasks, task):
+    tasks.append(task)
+    print(f"Task '{task}' added.")
 
-    <h3>Conclusion</h3>
-    <p>The code is functional and suitable for basic use cases but requires minor revisions to improve structure, scalability, and testing coverage. It is not yet production-ready but can be refactored easily.</p>
-</body>
-</html>
+def view_tasks(tasks):
+    if not tasks:
+        print("No tasks in the list.")
+    else:
+        for idx, task in enumerate(tasks, start=1):
+            print(f"{idx}. {task}")
+
+def delete_task(tasks, task_number):
+    if 0 < task_number <= len(tasks):
+        removed_task = tasks.pop(task_number - 1)
+        print(f"Task '{removed_task}' deleted.")
+    else:
+        print("Invalid task number.")
+
+def main():
+    tasks = []
+    try:
+        while True:
+            print("\nOptions: 1. Add Task  2. View Tasks  3. Delete Task  4. Exit")
+            choice = input("Choose an option: ").strip()
+
+            if choice == '1':
+                task = input("Enter the task: ").strip()
+                if task:
+                    add_task(tasks, task)
+                else:
+                    print("Task cannot be empty.")
+            elif choice == '2':
+                view_tasks(tasks)
+            elif choice == '3':
+                try:
+                    task_number = int(input("Enter task number to delete: "))
+                    delete_task(tasks, task_number)
+                except ValueError:
+                    print("Invalid input. Please enter a valid task number.")
+            elif choice == '4':
+                print("Exiting program. Goodbye!")
+                break
+            else:
+                print("Invalid choice. Please try again.")
+    except KeyboardInterrupt:
+        print("\nProgram terminated. Goodbye!")
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+
+<h3>Summary</h3>
+<ul>
+    <li><strong>Code Quality:</strong> Good</li>
+    <li><strong>Bugs:</strong> Minor</li>
+    <li><strong>Optimizations:</strong> Minor</li>
+    <li><strong>Testing:</strong> Needs More Tests</li>
+</ul>
+
+<h3>Conclusion</h3>
+<p>The code is functional and easy to understand but requires minor fixes for indentation, input validation, and graceful termination. With these improvements, the code can be considered production-ready for small-scale use. For larger applications, encapsulating the logic in a class and adding comprehensive unit tests is recommended.</p>
 ```
